@@ -3,14 +3,19 @@ import yaml
 import copy
 
 class Order:
+
   def __init__(self, products = {}):
     self.products = products
+
   def update_order(self, product_name, shipped_quantity):
     self.products[product_name] -= shipped_quantity
+
 class Warehouse:
+
   def __init__(self, name, inventory = {}):
     self.name = name
     self.inventory = inventory
+# if not enough inventory, return how much it get shipped and delete that key
   def update_inventory(self, product_name, quantity):
     if self.inventory[product_name] > quantity:
       self.inventory[product_name] -= quantity
@@ -19,41 +24,53 @@ class Warehouse:
       shipped_quantity = self.inventory[product_name]
       del self.inventory[product_name]
       return shipped_quantity 
+
 class Shipment:
+
   def __init__(self, Shipment):
     self.shipment = {}
+# if this warehouse if already shipping some products, just add the new product
   def update_shipment(self, warehouse, product_name, quantity):
     if (self.shipment.get(warehouse) == None):
       self.shipment[warehouse] = {product_name: quantity}
     else:
       self.shipment[warehouse][product_name] = quantity
+
   def __repr__(self):
     for warehouse in self.shipment:
       return "{\'%s\': %s}" % (warehouse, self.shipment[warehouse])
 
 class InventoryAllocator:
+
+# form warehouse list of Warehouse object from original argument
   def gen_warehouse_list(self, warehouses_init):
     warehouse_list = []
     for warehouse in warehouses_init:
       warehouse_list.append(Warehouse(warehouse["name"], warehouse["inventory"]))
     return warehouse_list
+
+# if not all value of order.values is 0, it means this order can't be satisfied
   def check_order_unsatisfied(self, order):
     return any(value != 0 for value in order.products.values())
+
+# Convert Shipment object in result_shipments list to normal dictionary and form new list
   def gen_output(self, result_shipments):
     return [shipment.shipment for shipment in result_shipments if shipment]
+
   def cheapest_shipment(self, order_init, warehouse_list_init):
     order = Order(copy.deepcopy(order_init))
     warehouse_list = self.gen_warehouse_list(copy.deepcopy(warehouse_list_init))
-    result_shipments = []    
+    result_shipments = []
+# Each warehouse would form one Shipment only
     for warehouse in warehouse_list:
       shipment = Shipment({})
-  # if this warehouse contains this product, create new Shipment object and update Order, Warehouse
+# if this warehouse contains this product, create new Shipment object and update Order, Warehouse
       for product in order.products:
         if (product in warehouse.inventory) & (order.products[product] != 0) :
           shipped_quantity = warehouse.update_inventory(product, order.products[product])
           order.update_order(product, shipped_quantity)
           shipment.update_shipment(warehouse.name, product, shipped_quantity)
-  # check is shipment empty
+# check is shipment empty
       if shipment.shipment:
         result_shipments.append(shipment)
     if self.check_order_unsatisfied(order):
