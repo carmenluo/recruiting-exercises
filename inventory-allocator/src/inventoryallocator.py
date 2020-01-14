@@ -81,8 +81,8 @@ class InventoryAllocator:
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("-o","--order" ,type = yaml.load, required = True, help="order argument required in dictionary format, i.e.\"{ apple: 1 , orange: 5}\"")
-  parser.add_argument("-s", "--storage" ,type = yaml.load, required = True, help="storage argument required in a list of dictionaries format, i.e.\"[{name: owd, inventory: { apple: 5} }, { name: dm, inventory: { orange: 5 }}]\"")
+  parser.add_argument("-o" ,type = yaml.load, required = True, help="order argument required in dictionary format, i.e.\"{ apple: 1 , orange: 5}\"")
+  parser.add_argument("-s",type = yaml.load, required = True, help="storage argument required in a list of dictionaries format, i.e.\"[{name: owd, inventory: { apple: 5} }, { name: dm, inventory: { orange: 5 }}]\"")
   args = parser.parse_args()
   # Enter InventoryAllocator class and do all the shipment calculations
   inventroy_allocator = InventoryAllocator()

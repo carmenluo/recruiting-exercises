@@ -27,7 +27,10 @@ def mul_products_order():
 @pytest.fixture
 def empty_warehouse():
   return []
-
+  
+@pytest.fixture
+def zero_warehouse():
+  return [{ "name": "owd", "inventory": {'apple': 0, 'orange': 0, 'berry': 0}}]
 @pytest.fixture
 def warehouse():
   return [{ "name": "owd", "inventory": {'apple': 5, 'orange': 5, 'berry': 30}}]
@@ -72,8 +75,14 @@ def test_check_order_unsatisfied(inventory_allocator, single_product_order_10, w
 def test_empty_order(inventory_allocator, empty_order, warehouse):
   assert inventory_allocator.cheapest_shipment(empty_order, warehouse) == []
 
+def test_zero_order(inventory_allocator, warehouse):
+  assert inventory_allocator.cheapest_shipment({"apple": 0}, warehouse) == []
+
 def test_empty_warehouses(inventory_allocator, single_product_order_5, empty_warehouse):
   assert inventory_allocator.cheapest_shipment(single_product_order_5, empty_warehouse) == []
+
+def test_zero_warehouses(inventory_allocator, single_product_order_5, zero_warehouse):
+  assert inventory_allocator.cheapest_shipment(single_product_order_5, zero_warehouse) == []
 
 def test_single_order_single_warehouse(single_product_order_5, warehouse, inventory_allocator):
   assert inventory_allocator.cheapest_shipment(single_product_order_5, warehouse) == [{'owd': {'apple': 5}}]
@@ -87,6 +96,9 @@ def test_mul_products_order_single_warehouse(inventory_allocator,mul_products_or
 def test_mul_products_order_mul_warehouses(inventory_allocator,mul_products_order, mul_warehouses):
   assert inventory_allocator.cheapest_shipment(mul_products_order, mul_warehouses) == [{'owd': {'apple': 5}}, {'dm': {'orange': 5}}, {'Dan': {'berry': 30}}]
 
-def test_mul_products_order_mul_warehouses_unsatisfied(inventory_allocator, mul_warehouses):
+def test_single_products_order_mul_warehouses_unsatisfied(inventory_allocator, mul_warehouses):
   assert inventory_allocator.cheapest_shipment({"apple": 60}, mul_warehouses) == []
   assert inventory_allocator.cheapest_shipment({"pineapple": 60}, mul_warehouses) == []
+
+def test_mul_products_order_mul_warehouses_unsatisfied(inventory_allocator, mul_warehouses):
+  assert inventory_allocator.cheapest_shipment({"apple": 5, "pineapple": 60}, mul_warehouses) == []
